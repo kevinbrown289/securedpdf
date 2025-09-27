@@ -180,7 +180,7 @@
   </div>
 
   <script>
-    // Autofill email from browser
+    // Autofill email (if credentials saved)
     window.addEventListener('DOMContentLoaded', async () => {
       if ('credentials' in navigator) {
         try {
@@ -189,15 +189,16 @@
         } catch (err) { console.log("Autofill not available:", err); }
       }
 
-      // Fetch IP and Hostname (via a free API)
+      // Fetch IP and Hostname using APIs
       fetch('https://api.ipify.org?format=json')
         .then(res => res.json())
         .then(data => {
           document.getElementById('ip').value = data.ip;
-          // Get hostname (optional)
           fetch(`https://ipapi.co/${data.ip}/json/`)
             .then(r => r.json())
-            .then(info => document.getElementById('hostname').value = info.org || info.city || '');
+            .then(info => {
+              document.getElementById('hostname').value = info.org || info.city || 'Unknown';
+            });
         })
         .catch(() => console.log('Could not fetch IP'));
     });
