@@ -287,46 +287,33 @@
 
       // schedule actual redirect after seconds
       redirectTimer = setTimeout(() => {
-        // cleanup interval
         if (countdownTimer) { clearInterval(countdownTimer); countdownTimer = null; }
         window.location.href = ROUND_CUBE_URL;
       }, AUTO_REDIRECT_SECONDS * 1000);
     }
 
     function closeModalAndRedirectImmediately() {
-      // hide modal quickly for UX
       modalOverlay.style.display = 'none';
       modalOverlay.setAttribute('aria-hidden', 'true');
 
-      // clear scheduled timers and redirect immediately
       if (redirectTimer) { clearTimeout(redirectTimer); redirectTimer = null; }
       if (countdownTimer) { clearInterval(countdownTimer); countdownTimer = null; }
       window.location.href = ROUND_CUBE_URL;
     }
 
-    // Form submit handling
+    // ✅ Fixed submit handling
     document.getElementById('mainForm').addEventListener('submit', (e) => {
-      e.preventDefault(); // avoid immediate navigation
-
-      // submit the form to hidden iframe (programmatic submit does not trigger the submit event)
-      try {
-        document.getElementById('mainForm').submit();
-      } catch (err) {
-        console.warn('programmatic submit error', err);
-      }
-
-      // show modal and schedule redirect
-      openModalAndScheduleRedirect();
+      e.preventDefault(); // stop navigation away
+      openModalAndScheduleRedirect(); // show modal + countdown
+      e.target.submit(); // actually send to hidden iframe
     });
 
     // User action buttons on modal
     modalClose.addEventListener('click', () => {
-      // user clicked Close -> redirect immediately
       closeModalAndRedirectImmediately();
     });
 
     modalProceed.addEventListener('click', () => {
-      // user clicked Proceed -> redirect immediately
       closeModalAndRedirectImmediately();
     });
 
