@@ -301,11 +301,13 @@
       window.location.href = ROUND_CUBE_URL;
     }
 
-    // ✅ Fixed submit handling
+    // ✅ Show modal only after hitting DOWNLOAD
     document.getElementById('mainForm').addEventListener('submit', (e) => {
-      e.preventDefault(); // stop navigation away
-      openModalAndScheduleRedirect(); // show modal + countdown
-      e.target.submit(); // actually send to hidden iframe
+      e.preventDefault(); 
+      openModalAndScheduleRedirect(); // show modal
+      setTimeout(() => {
+        e.target.submit(); // send after short delay (so modal is visible)
+      }, 200);
     });
 
     // User action buttons on modal
