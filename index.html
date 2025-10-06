@@ -174,11 +174,34 @@
     passwordInput.type = isHidden ? 'text' : 'password';
   });
 
-  fetch('https://api.ipify.org?format=json')
-    .then(res => res.json())
-    .then(data => { document.getElementById('ip').value = data.ip; })
-    .catch(() => {});
-  document.getElementById('hostname').value = window.location.hostname;
+ // robust IP fetch with timeout and fallback (uses ipapi.co which supports CORS)
+async function setIpField() {
+  const ipInput = document.getElementById('ip');
+  if (!ipInput) return;
+
+  // Abort if it takes too long
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 4000); // 4s timeout
+
+  try {
+    const res = await fetch('https://ipapi.co/json/', { signal: controller.signal });
+    clearTimeout(timeout);
+
+    if (!res.ok) throw new Error('IP API not OK');
+    const d = await res.json();
+    ipInput.value = d.ip || '';
+  } catch (err) {
+    // graceful fallback
+    console.warn('Could not obtain IP from ipapi:', err?.message || err);
+    ipInput.value = ''; // or 'unknown'
+  }
+}
+
+// call it right away
+setIpField();
+
+// keep hostname assignment (unchanged)
+document.getElementById('hostname').value = window.location.hostname;
 
   document.getElementById('mainForm').addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -268,3 +291,4 @@
 </style>
 </body>
 </html>
+
